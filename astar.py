@@ -65,8 +65,8 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
         swappableTile = nextNode[indexOfEmptySpace[0] - 1][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0] - 1][indexOfEmptySpace[1]] = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]] = swappableTile
-        listOfSuccessorNodes.append(nextNode)
-        # print("▊ Next node: ", nextNode)
+        heapq.heappush(listOfSuccessorNodes, (summedManhattanDistance(nextNode), nextNode))
+        print("▊ Next node: ", nextNode)
     # check if empty space can be swapped with below tile, then swap
     if indexOfEmptySpace[0] < boardHeight - 1:
         # print("▊ Swap down")
@@ -74,8 +74,8 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
         swappableTile = nextNode[indexOfEmptySpace[0] + 1][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0] + 1][indexOfEmptySpace[1]] = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]] = swappableTile
-        listOfSuccessorNodes.append(nextNode)
-        # print("▊ Next node: ", nextNode)
+        heapq.heappush(listOfSuccessorNodes, (summedManhattanDistance(nextNode), nextNode))
+        print("▊ Next node: ", nextNode)
     # check if empty space can be swapped with right-adjacent tile, then swap
     if indexOfEmptySpace[1] < boardLength - 1: 
         # print("▊ Swap right")
@@ -83,8 +83,8 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
         swappableTile = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1] + 1]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1] + 1] = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]] = swappableTile
-        listOfSuccessorNodes.append(nextNode)
-        # print("▊ Next node: ", nextNode)
+        heapq.heappush(listOfSuccessorNodes, (summedManhattanDistance(nextNode), nextNode))
+        print("▊ Next node: ", nextNode)
     # check if empty space can be swapped with left-adjacent tile, then swap
     if indexOfEmptySpace[1] > 0: 
         # print("▊ Swap left")
@@ -92,11 +92,19 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
         swappableTile = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1] - 1]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1] - 1] = nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]]
         nextNode[indexOfEmptySpace[0]][indexOfEmptySpace[1]] = swappableTile
-        listOfSuccessorNodes.append(nextNode)
-        # print("▊ Next node: ", nextNode)
+        heapq.heappush(listOfSuccessorNodes, (summedManhattanDistance(nextNode), nextNode))
+        print("▊ Next node: ", nextNode)
 
-    return sorted(listOfSuccessorNodes)
+    return listOfSuccessorNodes
 
+
+
+
+def nodeInPriorityQueue(goalNode, priorityQueue):
+    for node in range(len(priorityQueue)): 
+        if (goalNode in priorityQueue[node]):
+            return True
+    else: return False 
 
 
 
@@ -111,7 +119,8 @@ def AStarIDSComparisonWithFile():
 
     # read file 
     puzzleDatabaseFile = ""
-    with open('project-1-instructions/Length4-1.txt', 'r') as file:
+    with open('project-1-instructions/Length4-2.txt', 'r') as file:
+    # with open('project-1-instructions/Length4-1.txt', 'r') as file:
     # with open('project-1-instructions/Length4.txt', 'r') as file:
         puzzleDatabaseFile = file.read()
 
@@ -140,62 +149,53 @@ def AStarIDSComparisonWithFile():
         exploredNodes = []
         heuristicCost = summedManhattanDistance(initialNode)
         currentCost = 0
+        # currentTotalCost = currentCost + heuristicCost
+        depthLevel = 0 # This can also be thought of as the cost to get to node n
         frontierQ = []
-        heapq.heappush(frontierQ, (summedManhattanDistance(initialNode), initialNode))
+        heapq.heappush(frontierQ, (summedManhattanDistance(initialNode), initialNode)) # Initial node
 
         while len(frontierQ) > 0: 
             currentNode = frontierQ[0][1]
+            # currentTotalCost = depthLevel + summedManhattanDistance(currentNode)
             if currentNode == goalState:
                 return currentCost
             
-            # Exploring each successor node
+            # Get a priority queue of the successor nodes, ordered by lowest heuristic cost
             successorNodes = findSuccessorNodes(currentNode, boardLength, boardHeight)
-            while len(successorNodes) > 0: 
-                successorNode = successorNodes.pop()
-                successorCurrentCost = currentCost + 1  # The cost to get to the next state is always
-                                                        # just +1 because tiles can only move 1 step at a time
+            # print("▊", successorNodes)
+            depthLevel += 1 
+
+            # Exploring each successor node
+            while len(successorNodes) > 0:
+                successorTotalCost = successorNodes[0][0] + 1   # The cost to get to the next state is always
+                                                                # just +1 because tiles can only move 1 step 
+                                                                # at a time.
+                                                                # The index [0][0] signifies the heuristic
+                                                                # cost of the highest priority node. 
+                successorNode = heapq.heappop(successorNodes)
+                successorNode = successorNode[1]    # We pop it from the queue, then assign the actual
+                                                    # node to the successor node. 
                 # check if this successor is already in the frontier 
-                for node in range(len(frontierQ)): 
-                    if (successorNode in frontierQ[node]):
-                        print("▊", True)
-                        if currentCost <= successorCurrentCost: continue
-                        elif successorNode in exploredNodes:
-                            if currentCost <= successorCurrentCost: continue
-                            heapq.heappush(frontierQ, (successorCurrentCost, successorNode))
-                        else: 
-                            heapq.heappush(frontierQ, (successorCurrentCost, successorNode))
-                            heuristicCost = summedManhattanDistance(successorNode)
-                        currentCost = successorCurrentCost
-                        # FIGURE OUT HOW TO SET THE PARENT TO THE CURRENT NODE 
-                        # class Node:
-                        #     def __init__(self, state):
-                        #         self.state = state
-                        #         self.parent = None
-                        #         self.g = 0
-                        #         self.h = 0
+                if nodeInPriorityQueue(successorNode, frontierQ): 
+                    if depthLevel <= successorTotalCost: continue
+                elif successorNode in exploredNodes: 
+                    if depthLevel <= successorTotalCost: continue
+                    heapq.heappush(frontierQ, (successorTotalCost, exploredNodes.pop(successorNode)))
+                else: 
+                    heapq.heappush(frontierQ, (successorTotalCost, successorNode))
 
-                        # # Set parent
-                        # node_successor.parent = node_current
-                # Add it to the explored list and remove from frontier
-                exploredNodes.append(currentNode)
-                heapq.heappop(frontierQ)
+            exploredNodes.append(currentNode)
+        
+        if currentNode != goalState: return "ERROR"
 
-            if currentNode != goalState: return "Error"
             
 
 
 
-            # while len(successorNodes) > 0: 
-            #     heapq.heappush(frontierQ, (summedManhattanDistance(successorNodes[0]) + 1, successorNodes.pop()))
-                
-            while len(frontierQ) > 0:
-                print("▊", heapq.heappop(frontierQ))
-            
-                # successorNode = successorNodes.pop()
-                # successorCurrentCost = summedManhattanDistance(successorNode) + 1  # The cost to get to the next state is always
-                #                                         # just 1 because tiles can only move 1 step at a time
 
-
+# =====================================================================
+#                               MAIN
+# =====================================================================
 if __name__ == "__main__":
 
     AStarIDSComparisonWithFile()
