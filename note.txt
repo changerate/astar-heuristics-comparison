@@ -1,8 +1,9 @@
+Working with custom priority queue of tuples: (f(n), node)
+fixing the error where i'm getting: [7, (6, node)]
+
 heuristic goes to zero (manhattan distance). 
 path cost (or number of moves in our case) increases.
 
-
-the priority queue should be of the entire state. 
 
 there should be a set for the following: 
 1. The explored set -- cost is the summed manhattan distance 
