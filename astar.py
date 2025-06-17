@@ -14,7 +14,7 @@ import copy
 
 def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
     goalState = [[0,1,2],[3,4,5],[6,7,8]]
-    exploredNodes = []
+    exploredNodes = set()
 
     # Initialize the frontier as a priority queue (see sortPriorityQueueByFn())
     frontier = []
@@ -42,27 +42,18 @@ def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
                 if successorNode.f() > frontier[frontier.index(successorNode)]: continue
             elif successorNode in exploredNodes:            # Check if it's in the explored list
                 if successorNode.f() > exploredNodes[exploredNodes.index(successorNode)]: continue
-                moveItemBetweenQueues(successorNode, exploredNodes, frontier) 
+                frontier.append(successorNode)
+                frontier = sorted(frontier)
+                exploredNodes.remove(successorNode)
             else:                                           # Add it to the frontier list
                 frontier.append(successorNode)
                 frontier = sortPriorityQueueByFn(frontier)
 
-        moveItemBetweenQueues(currentNode, frontier, exploredNodes)
+        exploredNodes.add(currentNode)
+        frontier.remove(currentNode)
     
     if currentNode.state != goalState: return "ERROR"
 
-
-
-
-
-
-"""
-Move item from priority queue 1 to priority queue 2
-"""
-def moveItemBetweenQueues(item, q1, q2):
-    q1.remove(item)
-    q2.append(item)
-    q2 = sortPriorityQueueByFn(q2)
 
 
 
