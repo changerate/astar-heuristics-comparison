@@ -155,10 +155,7 @@ def getNextInitialPuzzle(puzzleIndex, puzzleDatabaseFile, boardHeight, boardLeng
 
 
 
-def AStarIDSComparisonWithFile():
-    # initialize board 
-    boardLength = 3
-    boardHeight = 3
+def AStarIDSComparisonWithFile(boardHeight, boardLength):
     listOfCosts = [] 
 
     # read file 
@@ -204,15 +201,11 @@ class Node:
 #                               MAIN
 # =====================================================================
 if __name__ == "__main__":
-
-    GOAL_POSITIONS = {i: (i//3, i%3) for i in range(9)}
+    boardHeight = 3
+    boardLength = 3
+    GOAL_POSITIONS = {i: (i//boardHeight, i%boardLength) for i in range(boardHeight*boardLength)}
 
     print("------------------------------------------------")
-    initialNode = Node(state = [[1,2,3],[0,4,5],[6,7,8]]) # NO SOLUTION!! 😤
-    initialNode = Node(state = [[1,2,5],[3,4,8],[6,7,0]])
-
-
-    # print("Cost of algorithm:", AStar8PuzzleAlgorithm(initialNode, 3, 3))
-    print("Cost of algorithm:", AStarIDSComparisonWithFile())
+    print("Cost of algorithm:", AStarIDSComparisonWithFile(boardHeight, boardLength))
     print("------------------------------------------------")
     # AStarIDSComparisonWithInput()
