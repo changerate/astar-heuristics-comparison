@@ -1,14 +1,10 @@
-Working with custom priority queue of tuples: (f(n), node)
-fixing the error where i'm getting: [7, (6, node)]
-
-heuristic goes to zero (manhattan distance). 
-path cost (or number of moves in our case) increases.
-
-
-there should be a set for the following: 
-1. The explored set -- cost is the summed manhattan distance 
-2. The frontier 
-
+checkout cluade's optimized code.
+consider implementing heapq again with this in the Node class:
+    def __lt__(self, other):
+        # For heapq comparison - compare by f() value first, then by g value
+        if self.f() != other.f():
+            return self.f() < other.f()
+        return self.g > other.g  # Prefer higher g (deeper) for tie-breaking
 
 The priority queue of things to move 
 

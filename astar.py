@@ -37,15 +37,13 @@ def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
             successorNode = successorNodes[0]
             successorNodes.pop(0)
             
-            # Determine what to do with the successor 
-            if successorNode in frontier:                   # Check if it's in the frontier list
-                if successorNode.f() > frontier[frontier.index(successorNode)]: continue
-            elif successorNode in exploredNodes:            # Check if it's in the explored list
-                if successorNode.f() > exploredNodes[exploredNodes.index(successorNode)]: continue
-                frontier.append(successorNode)
-                frontier = sorted(frontier)
-                exploredNodes.remove(successorNode)
-            else:                                           # Add it to the frontier list
+            if successorNode in exploredNodes:  # Check if it's in the explored list
+                continue
+            elif successorNode in frontier:     # Check if it's in the frontier list
+                if successorNode.f() < frontier[frontier.index(successorNode)].f():
+                    frontier.remove(frontier[frontier.index(successorNode)])
+                else: continue
+            else:                               # Add it to the frontier list
                 frontier.append(successorNode)
                 frontier = sortPriorityQueueByFn(frontier)
 
@@ -80,8 +78,9 @@ def summedManhattanDistance(node):
     for row in range(heightOfBoard):
         for column in range(lengthOfBoard):
             tileFaceValue = node[row][column]
-            goalRow, goalCol = GOAL_POSITIONS[tileFaceValue]
-            sumOfDistances += abs(row - goalRow) + abs(column - goalCol)
+            if tileFaceValue != 0:
+                goalRow, goalCol = GOAL_POSITIONS[tileFaceValue]
+                sumOfDistances += abs(row - goalRow) + abs(column - goalCol)
     return sumOfDistances
 
 
@@ -156,11 +155,11 @@ def getNextInitialPuzzle(puzzleIndex, puzzleDatabaseFile, boardHeight, boardLeng
 
 
 def AStarIDSComparisonWithFile(boardHeight, boardLength):
-    listOfCosts = [] 
+    listOfCosts = set()
 
     # read file 
     puzzleDatabaseFile = ""
-    with open('project-1-instructions/Length4.txt', 'r') as file:
+    with open('project-1-instructions/Length8.txt', 'r') as file:
         puzzleDatabaseFile = file.read()
 
 
@@ -171,7 +170,7 @@ def AStarIDSComparisonWithFile(boardHeight, boardLength):
         puzzleFileIndex = indexAndPuzzleTuple[1]
 
         initialNode = Node(state = indexAndPuzzleTuple[0])
-        listOfCosts.append(AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength))
+        listOfCosts.add(AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength))
 
     return listOfCosts
 
