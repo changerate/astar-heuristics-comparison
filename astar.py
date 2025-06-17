@@ -7,18 +7,14 @@
 
 # -----------------------------------------------------------------
 
+import copy 
+
 
 
 
 def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
     goalState = [[0,1,2],[3,4,5],[6,7,8]]
     exploredNodes = []
-    # depthLevel = 0 # This can also be thought of as the cost to get to node n
-
-    # Initialize the cost of the root node
-    currentNodeGCost = 0
-    currentNodeHCost = summedManhattanDistance(initialNode.state)
-    currentNodeFCost = currentNodeGCost + currentNodeHCost
 
     # Initialize the frontier as a priority queue (see sortPriorityQueueByFn())
     frontier = []
@@ -27,6 +23,9 @@ def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
     # Explore the frontier while there's still nodes 
     while len(frontier) > 0: 
         currentNode = frontier[0]
+        # print("▊", currentNode.state)
+        print("▊ Current Depth:", currentNode.g)
+        
         if currentNode.state == goalState:
             return currentNode.g 
         
@@ -35,25 +34,24 @@ def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
 
         # Exploring each successor node
         while len(successorNodes) > 0:
-            successorNode = Node(successorNodes[0].state)
-            successorNode.g = currentNode.g + 1
+            successorNode = successorNodes[0]
             successorNodes.pop(0)
             
             # Determine what to do with the successor 
-            if inPriorityQueue(successorNode.state, frontier) != -1:    # Check if it's in the frontier list
-                indexOfExistingNode = inPriorityQueue(successorNode.state, frontier)
-                if successorNode.f() > frontier[indexOfExistingNode[0]]: continue
-            elif inPriorityQueue(successorNode.state, exploredNodes) != -1:   # Check if it's in the explored list
-                indexOfExistingNode = inPriorityQueue(successorNode.state, frontier)
-                if successorNode.f() > frontier[indexOfExistingNode[0]]: continue
+            if successorNode in frontier:                   # Check if it's in the frontier list
+                if successorNode.f() > frontier[frontier.index(successorNode)]: continue
+            elif successorNode in exploredNodes:            # Check if it's in the explored list
+                if successorNode.f() > exploredNodes[exploredNodes.index(successorNode)]: continue
                 moveItemBetweenQueues(successorNode, exploredNodes, frontier) 
-            else:                                                       # Add it to the frontier list
+            else:                                           # Add it to the frontier list
                 frontier.append(successorNode)
                 frontier = sortPriorityQueueByFn(frontier)
 
         moveItemBetweenQueues(currentNode, frontier, exploredNodes)
     
     if currentNode.state != goalState: return "ERROR"
+
+
 
 
 
@@ -65,34 +63,6 @@ def moveItemBetweenQueues(item, q1, q2):
     q1.remove(item)
     q2.append(item)
     q2 = sortPriorityQueueByFn(q2)
-
-
-"""
-This determines if a state is in a priority queue regardless of the priority value.
-@Output: The index of the matching state within the priority queue.
-@Output: -1 if it is not within the priority queue.
-"""
-def inPriorityQueue(goalState, priorityQ):
-    # for row in range(len(priorityQ)):
-    if goalState in priorityQ:
-        return True
-    else: return -1
-
-
-
-'''
-@Input: originalNode = [boardLength X boardHeight]
-@Input: boardLength
-@Input: boardHeight
-@Output: deep copy of originalNode
-'''
-def deepCopy(originalNode, boardLength, boardHeight):
-    copyNode = Node(state = [[0 for _ in range(boardLength)] for _ in range(boardHeight)])
-    for row in range(boardHeight):
-        for column in range(boardLength):
-            copyNode.state[row][column] = originalNode.state[row][column]
-    copyNode.g = originalNode.g
-    return copyNode
 
 
 
@@ -115,13 +85,12 @@ def summedManhattanDistance(node):
     lengthOfBoard = len(node[0])
     heightOfBoard = len(node)
     sumOfDistances = 0 
+    
     for row in range(heightOfBoard):
         for column in range(lengthOfBoard):
             tileFaceValue = node[row][column]
-            horizontalDistance = abs(tileFaceValue % lengthOfBoard - column )
-            verticalDistance = abs(int(tileFaceValue / heightOfBoard) - row)
-            sumOfDistances += verticalDistance + horizontalDistance
-    # print(▊ sumOfDistances)
+            goalRow, goalCol = GOAL_POSITIONS[tileFaceValue]
+            sumOfDistances += abs(row - goalRow) + abs(column - goalCol)
     return sumOfDistances
 
 
@@ -133,44 +102,46 @@ def swapTiles(tile1Index, tile2Index, node):
     node.state[tile2Index[0]][tile2Index[1]] = swappableTile
 
 
+
+
 '''
 @Input: currentNode = [boardLength X boardHeight]
 @Input: boardLength
 @Input: boardHeight
 '''
 def findSuccessorNodes(currentNode, boardLength, boardHeight):
-    indexOfEmptySpace = [None, None] 
-    listOfSuccessorNodes = []
+    successors = []
 
-    # Find the index of the empty tile, 0
-    for row in range(boardHeight):
-        try:
-            indexOfEmptySpace = [row, currentNode.state[row].index(0)]
-            break
-        except ValueError:
-            pass 
+    for row in range(len(currentNode.state)):
+        for col in range(len(currentNode.state[0])):
+            if currentNode.state[row][col] == 0:
+                emptyPos = (row, col)
 
-    if indexOfEmptySpace[0] > 0: # check if empty space can be swapped with above tile, then swap
-        nextNode = deepCopy(currentNode, boardLength, boardHeight)
-        swapTiles([indexOfEmptySpace[0]-1, indexOfEmptySpace[1]], [indexOfEmptySpace[0], indexOfEmptySpace[1]], nextNode)
-        listOfSuccessorNodes.append(nextNode)
+    if emptyPos[0] > 0: # check if empty space can be swapped with above tile, then swap
+        nextNode = copy.deepcopy(currentNode)
+        swapTiles([emptyPos[0]-1, emptyPos[1]], [emptyPos[0], emptyPos[1]], nextNode)
+        nextNode.g += 1
+        successors.append(nextNode)
 
-    if indexOfEmptySpace[0] < boardHeight-1: # check if empty space can be swapped with below tile, then swap
-        nextNode = deepCopy(currentNode, boardLength, boardHeight)
-        swapTiles([indexOfEmptySpace[0]+1, indexOfEmptySpace[1]], [indexOfEmptySpace[0], indexOfEmptySpace[1]], nextNode)
-        listOfSuccessorNodes.append(nextNode)
+    if emptyPos[0] < boardHeight-1: # check if empty space can be swapped with below tile, then swap
+        nextNode = copy.deepcopy(currentNode)
+        swapTiles([emptyPos[0]+1, emptyPos[1]], [emptyPos[0], emptyPos[1]], nextNode)
+        nextNode.g += 1
+        successors.append(nextNode)
 
-    if indexOfEmptySpace[1] < boardLength-1: # check if empty space can be swapped with right-adjacent tile, then swap
-        nextNode = deepCopy(currentNode, boardLength, boardHeight)
-        swapTiles([indexOfEmptySpace[0], indexOfEmptySpace[1]+1], [indexOfEmptySpace[0], indexOfEmptySpace[1]], nextNode)
-        listOfSuccessorNodes.append(nextNode)
+    if emptyPos[1] < boardLength-1: # check if empty space can be swapped with right-adjacent tile, then swap
+        nextNode = copy.deepcopy(currentNode)
+        swapTiles([emptyPos[0], emptyPos[1]+1], [emptyPos[0], emptyPos[1]], nextNode)
+        nextNode.g += 1
+        successors.append(nextNode)
 
-    if indexOfEmptySpace[1] > 0: # check if empty space can be swapped with left-adjacent tile, then swap
-        nextNode = deepCopy(currentNode, boardLength, boardHeight)
-        swapTiles([indexOfEmptySpace[0], indexOfEmptySpace[1]-1], [indexOfEmptySpace[0], indexOfEmptySpace[1]], nextNode)
-        listOfSuccessorNodes.append(nextNode)
+    if emptyPos[1] > 0: # check if empty space can be swapped with left-adjacent tile, then swap
+        nextNode = copy.deepcopy(currentNode)
+        swapTiles([emptyPos[0], emptyPos[1]-1], [emptyPos[0], emptyPos[1]], nextNode)
+        nextNode.g += 1
+        successors.append(nextNode)
 
-    return sortPriorityQueueByFn(listOfSuccessorNodes)
+    return sortPriorityQueueByFn(successors)
 
 
 
@@ -197,10 +168,11 @@ def AStarIDSComparisonWithFile():
     # initialize board 
     boardLength = 3
     boardHeight = 3
+    listOfCosts = [] 
 
     # read file 
     puzzleDatabaseFile = ""
-    with open('project-1-instructions/Length4-2.txt', 'r') as file:
+    with open('project-1-instructions/Length4.txt', 'r') as file:
         puzzleDatabaseFile = file.read()
 
 
@@ -210,7 +182,10 @@ def AStarIDSComparisonWithFile():
         indexAndPuzzleTuple = getNextInitialPuzzle(0, puzzleDatabaseFile, boardHeight, boardLength, puzzleFileIndex)
         puzzleFileIndex = indexAndPuzzleTuple[1]
 
-        return AStar8PuzzleAlgorithm(indexAndPuzzleTuple[0], boardHeight, boardLength)
+        initialNode = Node(state = indexAndPuzzleTuple[0])
+        listOfCosts.append(AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength))
+
+    return listOfCosts
 
 
 
@@ -219,11 +194,18 @@ class Node:
     def __init__(self, state, g=0):
         self.state = state
         self.g = g     # Think about g(n) as the depth of the search, or the number of moves
-    def h(self):
-        return summedManhattanDistance(self.state)
-    def f(self):
-        return self.g + self.h()
+        self.h = summedManhattanDistance(state)
+    #     self.emptyPos = self._findEmptyPos()
 
+    # def _findEmptyPos(self):
+    #     for row in range(len(self.state)):
+    #         for col in range(len(self.state[0])):
+    #             if self.state[row][col] == 0:
+    #                 return (row, col)
+    #     return None
+            
+    def f(self):
+        return self.g + self.h
 
 
 
@@ -232,20 +214,14 @@ class Node:
 # =====================================================================
 if __name__ == "__main__":
 
+    GOAL_POSITIONS = {i: (i//3, i%3) for i in range(9)}
+
     print("------------------------------------------------")
-    initialNode = Node(state = [[1,2,3],[0,4,5],[6,7,8]])
-    print("Cost of algorithm:",AStar8PuzzleAlgorithm(initialNode, 3, 3))
-    # print("Cost of algorithm:",AStarIDSComparisonWithFile())
+    initialNode = Node(state = [[1,2,3],[0,4,5],[6,7,8]]) # NO SOLUTION!! 😤
+    initialNode = Node(state = [[1,2,5],[3,4,8],[6,7,0]])
+
+
+    # print("Cost of algorithm:", AStar8PuzzleAlgorithm(initialNode, 3, 3))
+    print("Cost of algorithm:", AStarIDSComparisonWithFile())
     print("------------------------------------------------")
     # AStarIDSComparisonWithInput()
-
-
-
-
-
-# def manhattanDistance(state, goalState):
-#     goalState = int(goalState)
-#     horizontalDistance = abs(state % 3 - goalState % 3)
-#     verticalDistance = abs(int(state / 3) - int(goalState / 3))
-#     return verticalDistance + horizontalDistance
-
