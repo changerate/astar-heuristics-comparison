@@ -25,11 +25,11 @@ import heapq
 import random 
 import time
 import argparse
-import sys
 import os # For clearing the terminal
 
 BOARD_HEIGHT = 3
 BOARD_LENGTH = 3
+NUM_PUZZLES_TO_SOLVE = 100 # default to multi puzzle test - changes if user decides single 
 
 GOAL_POSITIONS = {i: (i // BOARD_HEIGHT, i % BOARD_LENGTH) for i in range(BOARD_HEIGHT*BOARD_LENGTH)}
     # This calculates the "goal" positions for any tile given 
@@ -120,26 +120,61 @@ class Node:
 
 
 
-def solveAllPuzzles(initialPuzzleNodes):
+def solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve):
+    h1AveCost = 0
+    h2AveCost = 0
+    h1AveTime = 0
+    h2AveTime = 0
+    h1AveDepth = 0
+    h2AveDepth = 0
+    puzzleNum = 0
     while len(initialPuzzleNodes) > 0:
         # --- Check for solvability and adding to final starting list
         newInitialNode = heapq.heappop(initialPuzzleNodes)
         if not puzzleIsSolvable(newInitialNode):
-            print("▊ Removing from list." if VOLUME != "silent" else "")
+            print("▊ Removing from list." if VOLUME not in ["silent", "quite"] else "")
         else: 
             # --- Printing 
-            print("\n-----------------------------------------------" if VOLUME != "silent" else "")
-            print("SOLVING... " if VOLUME != "silent" else "")
-            h1Cost, h1Time = AStar8PuzzleAlgorithm(newInitialNode, "h1" if VOLUME != "silent" else "")
-            h2Cost, h2Time = AStar8PuzzleAlgorithm(newInitialNode, "h2" if VOLUME != "silent" else "")
+            if VOLUME not in ["silent", "quite"] :
+                print("\n-----------------------------------------------")
+                print("SOLVING... ")
+            h1Cost, h1Time, h1Depth = AStar8PuzzleAlgorithm(newInitialNode, "h1")
+            h2Cost, h2Time, h2Depth = AStar8PuzzleAlgorithm(newInitialNode, "h2")
 
-            if VOLUME != "silent":
+            if VOLUME not in ["silent", "quite"] :
                 print("H1 Search Cost:", h1Cost)
                 print("H2 Search Cost:", h2Cost)
-                print(f"H1 Time: {1000 * h1Time:.2f} ms" if VOLUME != "silent" else "")
-                print(f"H2 Time: {1000 * h2Time:.2f} ms" if VOLUME != "silent" else "")
-                print("-----------------------------------------------\n" if VOLUME != "silent" else "")
+                print(f"H1 Time: {1000 * h1Time:.2f} ms")
+                print(f"H2 Time: {1000 * h2Time:.2f} ms")
+                print("H1 Average Search Depth:", h1Depth)
+                print("H2 Average Search Depth:", h2Depth)
+                print("-----------------------------------------------\n")
 
+            h1AveCost += h1Cost
+            h2AveCost += h2Cost
+            h1AveTime += h1Time
+            h2AveTime += h2Time
+            h1AveDepth += h1Depth
+            h2AveDepth += h2Depth
+            
+            VOLUME == 'quite' and print("Puzzle number:", puzzleNum)
+            puzzleNum += 1
+
+    try: 
+        if VOLUME == "quite": 
+            print("-----------------------------------------------\n")
+            print("H1 Average Search Cost:", h1Cost/numPuzzlesToSolve)
+            print("H2 Average Search Cost:", h2Cost/numPuzzlesToSolve)
+            print(f"H1 Average Time: {1000 * h1Time:.2f} ms"/numPuzzlesToSolve)
+            print(f"H2 Average Time: {1000 * h2Time:.2f} ms"/numPuzzlesToSolve)
+            print("H1 Average Search Depth:", h1Depth/numPuzzlesToSolve)
+            print("H2 Average Search Depth:", h2Depth/numPuzzlesToSolve)
+            print("-----------------------------------------------\n")
+    except:
+        print("\n▊ ERROR")
+             
+                    
+            
 
 
 """
@@ -163,20 +198,24 @@ def AStar8PuzzleAlgorithm(initialNode, heuristicPref):
     while frontier: 
         steps += 1
         currentNode = heapq.heappop(frontier)
-        del frontierStates[currentNode.stateHash]
+        if currentNode.stateHash in frontierStates:
+            del frontierStates[currentNode.stateHash]
 
         # --- printing 
-        if steps <= 10 and heuristicPref == "h2" and VOLUME != "silent": 
+        if steps <= 10 and heuristicPref == "h2" and VOLUME not in ["silent", "quite"] : 
             print("Showing first ten steps: ", end="")
             print(steps)
             printBoard(currentNode.state)
-        elif steps == 11 and heuristicPref == "h2" and VOLUME != "silent":
+        elif steps == 11 and heuristicPref == "h2" and VOLUME not in ["silent", "quite"] :
             print("...")
-        # print("▊ Current Depth:", currentNode.g if VOLUME != "silent" else "" )
+        # if heuristicPref == "h2" and VOLUME not in ["silent", "quite"] : 
+        #     print("Steps:", steps)
+        # print("▊ Current Depth:", currentNode.g if VOLUME not in ["silent", "quite"] else "" )
         
+        # --- Checking against the solution
         if currentNode.stateHash == goalState:
             Time = time.process_time() - Time
-            return (SearchCost, Time)
+            return (SearchCost, Time, currentNode.g)
         
         exploredNodes.add(currentNode.stateHash)
         successorNodes = findSuccessorNodes(currentNode, heuristicPref)
@@ -459,9 +498,8 @@ def getInitialPuzzleFromUserInput():
     
     
     
-def getPuzzles(puzzleAmntPref, inputPreference):
+def getPuzzles(puzzleAmntPref, inputPreference, numPuzzlesToSolve):
     initialPuzzleNodes = []
-    numPuzzlesToSolve = 4 # default to multi puzzle test - changes if user decides single 
     
     # --- adjust number of puzzles to intake based on preference
     if puzzleAmntPref == 1: # single test
@@ -502,7 +540,7 @@ Unfilled puzzles are puzzles that are similar to this:
 This would not get picked up as unsolvable with inversions.
 """    
 def puzzleIsSolvable(puzzle):
-    print("\nChecking the solvability of the puzzle: " if VOLUME != "silent" else "")
+    print("\nChecking the solvability of the puzzle: " if VOLUME not in ["silent", "quite"] else "")
 
     # --- Check for unfilled puzzles (print at same time)
     items = set() 
@@ -511,7 +549,7 @@ def puzzleIsSolvable(puzzle):
             items.add(puzzle.state[row][col])
 
     if len(items) < BOARD_HEIGHT*BOARD_LENGTH:
-        print("▊ Puzzle is not solvable." if VOLUME != "silent" else "")
+        print("▊ Puzzle is not solvable." if VOLUME not in ["silent", "quite"] else "")
         return False
     
     # --- Check for number of inversions 
@@ -523,10 +561,10 @@ def puzzleIsSolvable(puzzle):
                 inversions += 1
                 
     if inversions % 2 == 0:
-        print("Puzzle is solvable." if VOLUME != "silent" else "")
+        print("Puzzle is solvable." if VOLUME not in ["silent", "quite"] else "")
         return True
     else:
-        print("▊ Puzzle is not solvable." if VOLUME != "silent" else "")
+        print("▊ Puzzle is not solvable." if VOLUME not in ["silent", "quite"] else "")
         return False
     
 
@@ -562,6 +600,7 @@ def printBoard(state):
 # ====================================================================================
 # ====================================================================================
 if __name__ == "__main__":
+    numPuzzlesToSolve = NUM_PUZZLES_TO_SOLVE
 
     # --------- clear the terminal
     def clear_terminal():
@@ -576,9 +615,9 @@ if __name__ == "__main__":
         exit(0)
         
     # --------- Get puzzles through different means
-    initialPuzzleNodes = getPuzzles(puzzleAmntPref, inputPreference)
+    initialPuzzleNodes = getPuzzles(puzzleAmntPref, inputPreference, numPuzzlesToSolve)
     
     # --------- Solving the puzzles 
-    solveAllPuzzles(initialPuzzleNodes)
+    solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve)
             
     exit(0)
