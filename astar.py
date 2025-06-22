@@ -5,10 +5,27 @@
 # Professor Daisy Tang 
 # California State Polytechnic University - Pomona
 
-# -----------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------------
+#                              globals and imports
+# ---------------------------------------------------------------------
+
+
 
 import heapq
 import random 
+import time
+import argparse
+import sys
 import os # For clearing the terminal
 
 BOARD_HEIGHT = 3
@@ -24,6 +41,17 @@ for x in range(BOARD_HEIGHT * BOARD_LENGTH):
     ALLOWED_NUMBERS.add(str(x))
     # for example, a 3x3 board has numbers [0,1,2,3,4,5,6,7,8]
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="8-puzzle A* solver")
+    parser.add_argument('--volume', type=str, default="verbose", help="verbose, silent")
+    return parser.parse_args()
+args = parse_args()
+VOLUME = args.volume
+
+
+
+
+
 
 
 
@@ -36,15 +64,20 @@ for x in range(BOARD_HEIGHT * BOARD_LENGTH):
 
 
 class Node: 
-    def __init__(self, state, g=0):
+    def __init__(self, state, g=0, hPref = "h1"):
         self.state = state
         self.g = g  # Think about g(n) as the depth of the search, or the number of moves
         self.stateHash = tuple(tuple(row) for row in state)  # Immutable hash for set operations
-        self.h = summedManhattanDistance(state)
+        self.h1 = numMisplacedTiles(state)
+        self.h2 = summedManhattanDistance(state)
         self.emptyPos = self.findEmptyPos()
+        self.hPref = hPref
 
-    def f(self):
-        return self.g + self.h
+    def f1(self):
+        return self.g + self.h1
+
+    def f2(self):
+        return self.g + self.h2
 
     def findEmptyPos(self):
         for row in range(len(self.state)):
@@ -53,15 +86,25 @@ class Node:
                     return (row, col)
         return None
 
-    # For heapq implementation 
+    # --- For heapq implementation 
     def __lt__(self, other):
         # For heapq comparison - compare by f() value first, then by g value
-        if self.f() != other.f():
-            return self.f() < other.f()
-        return self.g > other.g  # Prefer higher g (deeper) for tie-breaking
+        if self.hPref == "h1":
+            if self.f1() != other.f1():
+                return self.f1() < other.f1()
+            return self.g > other.g  # Prefer higher g (deeper) for tie-breaking
+        else:
+            if self.f2() != other.f2():
+                return self.f2() < other.f2()
+            return self.g > other.g  # Prefer higher g (deeper) for tie-breaking
     
     def __eq__(self, other):
         return self.stateHash == other.stateHash
+
+
+
+
+
 
 
 
@@ -77,32 +120,68 @@ class Node:
 
 
 
+def solveAllPuzzles(initialPuzzleNodes):
+    while len(initialPuzzleNodes) > 0:
+        # --- Check for solvability and adding to final starting list
+        newInitialNode = heapq.heappop(initialPuzzleNodes)
+        if not puzzleIsSolvable(newInitialNode):
+            print("▊ Removing from list." if VOLUME != "silent" else "")
+        else: 
+            # --- Printing 
+            print("\n-----------------------------------------------" if VOLUME != "silent" else "")
+            print("SOLVING... " if VOLUME != "silent" else "")
+            h1Cost, h1Time = AStar8PuzzleAlgorithm(newInitialNode, "h1" if VOLUME != "silent" else "")
+            h2Cost, h2Time = AStar8PuzzleAlgorithm(newInitialNode, "h2" if VOLUME != "silent" else "")
 
-def AStar8PuzzleAlgorithm(initialNode, BOARD_HEIGHT, BOARD_LENGTH):
-    goalState = tuple(tuple(row) for row in [[0,1,2],[3,4,5],[6,7,8]])
+            if VOLUME != "silent":
+                print("H1 Search Cost:", h1Cost)
+                print("H2 Search Cost:", h2Cost)
+                print(f"H1 Time: {1000 * h1Time:.2f} ms" if VOLUME != "silent" else "")
+                print(f"H2 Time: {1000 * h2Time:.2f} ms" if VOLUME != "silent" else "")
+                print("-----------------------------------------------\n" if VOLUME != "silent" else "")
+
+
+
+"""
+A STAR ALGORITHM 
+"""
+def AStar8PuzzleAlgorithm(initialNode, heuristicPref):
+    SearchCost = 0
+    Time = time.process_time()
+    steps = 0
+    goalState = ((0,1,2),(3,4,5),(6,7,8)) # NEED TO MAKE THIS DYNAMIC
     exploredNodes = set()
 
-    # Initialize the frontier as a priority queue (see sortPriorityQueueByFn())
+    # --- Initialize the frontier as a priority queue
     frontier = []
     heapq.heappush(frontier, initialNode)
     frontierStates = {initialNode.stateHash: initialNode}   # For quicker searcher; we
                                                             # use hashes. This makes
                                                             # storage more cost effective
                                                             # and search decreases. 
-    # Explore the frontier while there's still nodes 
+    # --- Explore the frontier while there's still nodes 
     while frontier: 
+        steps += 1
         currentNode = heapq.heappop(frontier)
         del frontierStates[currentNode.stateHash]
-        
-        # print("▊ Current Depth:", currentNode.g)
+
+        # --- printing 
+        if steps <= 10 and heuristicPref == "h2" and VOLUME != "silent": 
+            print("Showing first ten steps: ", end="")
+            print(steps)
+            printBoard(currentNode.state)
+        elif steps == 11 and heuristicPref == "h2" and VOLUME != "silent":
+            print("...")
+        # print("▊ Current Depth:", currentNode.g if VOLUME != "silent" else "" )
         
         if currentNode.stateHash == goalState:
-            return currentNode.g 
+            Time = time.process_time() - Time
+            return (SearchCost, Time)
         
         exploredNodes.add(currentNode.stateHash)
-        successorNodes = findSuccessorNodes(currentNode, BOARD_LENGTH, BOARD_HEIGHT)
+        successorNodes = findSuccessorNodes(currentNode, heuristicPref)
 
-        # Exploring each successor node
+        # --- Exploring each successor node
         for successorNode in successorNodes:
             successorHash = successorNode.stateHash
             
@@ -113,9 +192,11 @@ def AStar8PuzzleAlgorithm(initialNode, BOARD_HEIGHT, BOARD_LENGTH):
                 if successorNode.g < existingNode.g:
                     existingNode.g = float('inf')  # Mark as invalid
                     heapq.heappush(frontier, successorNode)
+                    SearchCost += 1
                     frontierStates[successorHash] = successorNode
-            else:  # Add it to the frontier list
+            else:  # --- Add it to the frontier list
                 heapq.heappush(frontier, successorNode)
+                SearchCost += 1
                 frontierStates[successorHash] = successorNode
 
     return "ERROR" 
@@ -142,20 +223,32 @@ def summedManhattanDistance(state):
 
 
 
+
+def numMisplacedTiles(state):
+    flatState = [tile for row in state for tile in row if tile != 0]
+    numMisplacedTiles = 0
+    for i in range(len(flatState)):
+        if i != flatState[i]:
+            numMisplacedTiles += 1
+    return numMisplacedTiles
+
+    
+
+    
 '''
 @Input: currentNode = [BOARD_LENGTH X BOARD_HEIGHT]
 @Input: BOARD_LENGTH
 @Input: BOARD_HEIGHT
 '''
-def findSuccessorNodes(currentNode, BOARD_LENGTH, BOARD_HEIGHT):
+def findSuccessorNodes(currentNode, heuristicPref):
     successors = []
     state = currentNode.state
-    # Find empty position
+
+    # --- Find empty position
     emptyPos = currentNode.emptyPos
     row, col = emptyPos
 
-    # The possibility of moves up down right left
-    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)] # The possibility of moves up down right left
     
     for directionalOffsetRow, directionalOffsetCol in moves:
         newRow, newCol = row + directionalOffsetRow, col + directionalOffsetCol
@@ -166,34 +259,16 @@ def findSuccessorNodes(currentNode, BOARD_LENGTH, BOARD_HEIGHT):
             newState[row][col], newState[newRow][newCol] = newState[newRow][newCol], newState[row][col]
             
             # Create new node
-            newNode = Node(state=newState, g=currentNode.g + 1)
+            newNode = Node(state=newState, g=currentNode.g + 1, hPref=heuristicPref)
             successors.append(newNode)
 
     return successors
 
 
 
-def AStarHeuristicComparisonWithFile(BOARD_HEIGHT, BOARD_LENGTH):
-    listOfCosts = set()
-
-    filename = input("\nEnter the destination of the file containing ALL the puzzles to be solved: ")
-    
-    # read file 
-    puzzleDatabaseFile = ""
-    with open(filename, 'r') as file:
-        puzzleDatabaseFile = file.read()
 
 
-    # While there is still a puzzle to be worked on: 
-    puzzleFileIndex = 0
-    while puzzleFileIndex < len(puzzleDatabaseFile):
-        indexAndPuzzleTuple = getNextPuzzleFromFileString(0, puzzleDatabaseFile, BOARD_HEIGHT, BOARD_LENGTH, puzzleFileIndex)
-        puzzleFileIndex = indexAndPuzzleTuple[1]
 
-        initialNode = Node(state = indexAndPuzzleTuple[0])
-        listOfCosts.add(AStar8PuzzleAlgorithm(initialNode, BOARD_HEIGHT, BOARD_LENGTH))
-
-    return listOfCosts
 
 
 
@@ -205,9 +280,6 @@ def AStarHeuristicComparisonWithFile(BOARD_HEIGHT, BOARD_LENGTH):
 # ---------------------------------------------------------------------
 #                              user inputs 
 # ---------------------------------------------------------------------
-
-
-
 
 
 
@@ -266,7 +338,7 @@ def gracefullyGetUserPreferences():
     # -------- Get heuristic function
     invalidInput = True
     while (invalidInput):
-        heuristicPreference = input(
+        userHeuristicPreference = input(
             "\nSelect H Function:\n"
             "[1] H1\n"
             "[2] H2\n"
@@ -274,8 +346,8 @@ def gracefullyGetUserPreferences():
         )
         # ---- Handle errors with input
         try:
-            heuristicPreference = int(heuristicPreference)
-            if (1 > heuristicPreference or heuristicPreference > 2):
+            userHeuristicPreference = int(userHeuristicPreference)
+            if (1 > userHeuristicPreference or userHeuristicPreference > 2):
                 invalidInput = True
                 print("\n▊ ERROR: Please only input an integer (1 or 2) followed by a return")
             else:
@@ -283,7 +355,7 @@ def gracefullyGetUserPreferences():
         except:
             print("\n▊ ERROR: Please only input an integer (1 or 2) followed by a return")
     
-    return [puzzleAmntPref, inputPreference, heuristicPreference]
+    return [puzzleAmntPref, inputPreference, userHeuristicPreference]
 
 
 
@@ -316,8 +388,6 @@ def getRandomPuzzle():
    
     
 def getInitialPuzzlesFromFiles():
-    endOfFileNode = Node(state = [[0 for _ in range(BOARD_LENGTH)] for _ in range(BOARD_HEIGHT)])
-        # this means the end of the file wsa reached and this initial node is all zeros
     filename = input("\nEnter the destination of the file containing ALL the puzzles to be solved: ")
     initialPuzzleNodes = []
     
@@ -327,16 +397,15 @@ def getInitialPuzzlesFromFiles():
         with open(filename, 'r') as file:
             puzzleFileAsString = file.read()
     except:
-        print("Can't find that file. Exiting")
-        exit()
+        print("\n▊ Can't find that file. Exiting.\n")
+        exit(1)
     
     # While there is still a puzzle to be read from the file
     fileIndex = 0
     while fileIndex < len(puzzleFileAsString):
         initialNode, fileIndex = getNextPuzzleFromFileString(puzzleFileAsString, BOARD_HEIGHT, BOARD_LENGTH, fileIndex)
-        if initialNode == endOfFileNode:
-            continue
-        initialPuzzleNodes.append(initialNode)
+        # initialPuzzleNodes.append(initialNode)
+        heapq.heappush(initialPuzzleNodes, initialNode)
 
     return initialPuzzleNodes
 
@@ -390,30 +459,10 @@ def getInitialPuzzleFromUserInput():
     
     
     
-    
-def puzzleIsSolvable(puzzle):
-    print("\nChecking the solvability of the puzzle: ")
-    for row in range(BOARD_HEIGHT):
-        for col in range(BOARD_LENGTH):
-            print(puzzle.state[row][col], end=' ')
-        print("")
-
-    # --- Check for number of inversions 
-    inversions = 0
-    flatPuzzle = [tile for row in puzzle.state for tile in row if tile != 0]
-    for i in range(len(flatPuzzle)):
-        for j in range(i + 1, len(flatPuzzle)):
-            if flatPuzzle[i] > flatPuzzle[j]:
-                inversions += 1
-    return True if inversions % 2 == 0 else False
-    
-
-
-
 def getPuzzles(puzzleAmntPref, inputPreference):
     initialPuzzleNodes = []
     numPuzzlesToSolve = 4 # default to multi puzzle test - changes if user decides single 
-
+    
     # --- adjust number of puzzles to intake based on preference
     if puzzleAmntPref == 1: # single test
         numPuzzlesToSolve = 1
@@ -426,43 +475,92 @@ def getPuzzles(puzzleAmntPref, inputPreference):
     while i < numPuzzlesToSolve:  # repeat for multiple puzzles 
         match inputPreference:
             case 1:
-                initialPuzzleNodes.append(getRandomPuzzle())
+                heapq.heappush(initialPuzzleNodes, getRandomPuzzle())
                 # Random puzzle is inherently solvable 
             case 2: 
                 initialPuzzleNodes = getInitialPuzzlesFromFiles()
                 i = numPuzzlesToSolve # Above function accounts for multi & single tests
-                # Check for solvability 
-                for puzzle in initialPuzzleNodes:
-                    if puzzleIsSolvable(puzzle):
-                        print("Puzzle is solvable.")
-                    else:
-                        print("▊ Puzzle is not solvable. Exiting.")
-                        exit(1) 
             case 3: 
-                initialPuzzleNodes.append(getInitialPuzzleFromUserInput())
-                # Check for solvability 
-                for puzzle in initialPuzzleNodes:
-                    if puzzleIsSolvable(puzzle):
-                        print("Puzzle is solvable.")
-                    else:
-                        print("▊ Puzzle is not solvable. Exiting.")
-                        exit(1) 
+                heapq.heappush(initialPuzzleNodes, getInitialPuzzleFromUserInput())
             case _: 
                 print("▊ ERROR with the input preference.")
                 exit(-1)
         i += 1
-        
+
     return initialPuzzleNodes
 
 
 
 
 
-# =====================================================================
-# =====================================================================
-#                               MAIN
-# =====================================================================
-# =====================================================================
+"""
+Checks for inversions as well as unfilled puzzles. 
+Unfilled puzzles are puzzles that are similar to this: 
+4 5 6
+0 0 0 
+0 0 0
+This would not get picked up as unsolvable with inversions.
+"""    
+def puzzleIsSolvable(puzzle):
+    print("\nChecking the solvability of the puzzle: " if VOLUME != "silent" else "")
+
+    # --- Check for unfilled puzzles (print at same time)
+    items = set() 
+    for row in range(BOARD_HEIGHT):
+        for col in range(BOARD_LENGTH):
+            items.add(puzzle.state[row][col])
+
+    if len(items) < BOARD_HEIGHT*BOARD_LENGTH:
+        print("▊ Puzzle is not solvable." if VOLUME != "silent" else "")
+        return False
+    
+    # --- Check for number of inversions 
+    inversions = 0
+    flatPuzzle = [tile for row in puzzle.state for tile in row if tile != 0]
+    for i in range(len(flatPuzzle)):
+        for j in range(i + 1, len(flatPuzzle)):
+            if flatPuzzle[i] > flatPuzzle[j]:
+                inversions += 1
+                
+    if inversions % 2 == 0:
+        print("Puzzle is solvable." if VOLUME != "silent" else "")
+        return True
+    else:
+        print("▊ Puzzle is not solvable." if VOLUME != "silent" else "")
+        return False
+    
+
+
+
+
+
+
+def printBoard(state):
+    for row in range(BOARD_HEIGHT):
+        for col in range(BOARD_LENGTH):
+            print(state[row][col], end=' ')
+        print("")
+    print("")
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ====================================================================================
+# ====================================================================================
+#                                  MAIN
+# ====================================================================================
+# ====================================================================================
 if __name__ == "__main__":
 
     # --------- clear the terminal
@@ -472,25 +570,15 @@ if __name__ == "__main__":
 
     # --------- Get user preferences
     print("\nHello, welcome to the 8-puzzle problem solver using the A* algorithm.\n")
-    puzzleAmntPref, inputPreference, heuristicPreference = gracefullyGetUserPreferences()    
+    puzzleAmntPref, inputPreference, userHeuristicPreference = gracefullyGetUserPreferences()    
     if puzzleAmntPref == None: 
         # the user chose to exit
         exit(0)
         
-    #### REMOVE SOLUTION DEPTH 
-    
     # --------- Get puzzles through different means
     initialPuzzleNodes = getPuzzles(puzzleAmntPref, inputPreference)
     
-    for puzzle in initialPuzzleNodes:
-        print(puzzle.state)
-        
+    # --------- Solving the puzzles 
+    solveAllPuzzles(initialPuzzleNodes)
             
     exit(0)
-    
-
-        
-    # print("------------------------------------------------")
-    # print("Cost of algorithm:", AStarHeuristicComparisonWithFile(BOARD_HEIGHT, BOARD_LENGTH))
-    # print("------------------------------------------------")
-    # # AStarIDSComparisonWithInput()
