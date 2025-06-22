@@ -1,0 +1,1188 @@
+Last login: Sat Jun 21 22:31:03 on ttys005
+carlos@C-MacBook-Pro astar-heuristics-comparison % python astar.py                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hello, welcome to the 8-puzzle problem solver using the A* algorithm.
+
+Select:
+[1] Single Test Puzzle
+[2] Multi-Test Puzzle
+[3] Exit
+Your choice: 2
+
+Select Input Method:
+[1] Random
+[2] File
+[3] Manual input
+Your choice: 2
+
+Select H Function:
+[1] H1
+[2] H2
+Your choice: 2
+
+Enter the destination of the file containing ALL the puzzles to be solved: /Users/carlos_1/Documents/GitHub/astar-heuristics-comparison/project-1-instructions/Length12.txt
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+0 3 5 
+2 7 4 
+1 6 8 
+
+Steps: 2
+2 3 5 
+0 7 4 
+1 6 8 
+
+Steps: 3
+2 3 5 
+1 7 4 
+0 6 8 
+
+Steps: 4
+2 3 5 
+1 7 4 
+6 0 8 
+
+Steps: 5
+2 3 5 
+1 0 4 
+6 7 8 
+
+Steps: 6
+2 0 5 
+1 3 4 
+6 7 8 
+
+Steps: 7
+0 2 5 
+1 3 4 
+6 7 8 
+
+Steps: 8
+1 2 5 
+0 3 4 
+6 7 8 
+
+Steps: 9
+1 2 5 
+3 0 4 
+6 7 8 
+
+Steps: 10
+1 2 5 
+3 4 0 
+6 7 8 
+
+Steps: 11
+1 2 0 
+3 4 5 
+6 7 8 
+
+Steps: 12
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 13
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 3926
+H2 Search Cost (nodes generated): 23
+H1 Time: 61.34 ms
+H2 Time: 0.43 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+1 4 2 
+6 3 5 
+7 8 0 
+
+Steps: 2
+1 4 2 
+6 3 5 
+7 0 8 
+
+Steps: 3
+1 4 2 
+6 3 5 
+0 7 8 
+
+Steps: 4
+1 4 2 
+0 3 5 
+6 7 8 
+
+Steps: 5
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 6
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 7
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 271
+H2 Search Cost (nodes generated): 12
+H1 Time: 2.64 ms
+H2 Time: 0.20 ms
+H1 Search Depth: 6
+H2 Search Depth: 6
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+4 7 2 
+1 5 8 
+0 3 6 
+
+Steps: 2
+4 7 2 
+1 5 8 
+3 0 6 
+
+Steps: 3
+4 7 2 
+1 5 8 
+3 6 0 
+
+Steps: 4
+4 7 2 
+1 5 0 
+3 6 8 
+
+Steps: 5
+4 7 2 
+1 0 5 
+3 6 8 
+
+Steps: 6
+4 0 2 
+1 7 5 
+3 6 8 
+
+Steps: 7
+0 4 2 
+1 7 5 
+3 6 8 
+
+Steps: 8
+1 4 2 
+0 7 5 
+3 6 8 
+
+Steps: 9
+1 4 2 
+3 7 5 
+0 6 8 
+
+Steps: 10
+1 4 2 
+3 7 5 
+6 0 8 
+
+Steps: 11
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 12
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 13
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 3778
+H2 Search Cost (nodes generated): 23
+H1 Time: 36.97 ms
+H2 Time: 0.37 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+3 5 8 
+4 0 2 
+6 1 7 
+
+Steps: 2
+3 0 8 
+4 5 2 
+6 1 7 
+
+Steps: 3
+3 5 8 
+4 1 2 
+6 0 7 
+
+Steps: 4
+3 5 8 
+4 1 2 
+6 7 0 
+
+Steps: 5
+3 5 8 
+0 4 2 
+6 1 7 
+
+Steps: 6
+0 5 8 
+3 4 2 
+6 1 7 
+
+Steps: 7
+3 5 8 
+4 1 0 
+6 7 2 
+
+Steps: 8
+3 5 0 
+4 1 8 
+6 7 2 
+
+Steps: 9
+3 0 5 
+4 1 8 
+6 7 2 
+
+Steps: 10
+3 1 5 
+4 0 8 
+6 7 2 
+
+Steps: 11
+3 1 5 
+0 4 8 
+6 7 2 
+
+Steps: 12
+0 1 5 
+3 4 8 
+6 7 2 
+
+Steps: 13
+5 0 8 
+3 4 2 
+6 1 7 
+
+Steps: 14
+3 5 8 
+6 4 2 
+0 1 7 
+
+Steps: 15
+3 5 8 
+4 1 2 
+0 6 7 
+
+Steps: 16
+3 8 0 
+4 5 2 
+6 1 7 
+
+Steps: 17
+3 8 2 
+4 5 0 
+6 1 7 
+
+Steps: 18
+3 8 2 
+4 0 5 
+6 1 7 
+
+Steps: 19
+3 0 2 
+4 8 5 
+6 1 7 
+
+Steps: 20
+3 8 2 
+4 1 5 
+6 0 7 
+
+Steps: 21
+3 8 2 
+4 1 5 
+6 7 0 
+
+Steps: 22
+3 8 2 
+0 4 5 
+6 1 7 
+
+Steps: 23
+0 8 2 
+3 4 5 
+6 1 7 
+
+Steps: 24
+0 3 8 
+4 5 2 
+6 1 7 
+
+Steps: 25
+3 5 8 
+4 2 0 
+6 1 7 
+
+Steps: 26
+3 5 0 
+4 2 8 
+6 1 7 
+
+Steps: 27
+3 0 5 
+4 2 8 
+6 1 7 
+
+Steps: 28
+3 2 5 
+4 0 8 
+6 1 7 
+
+Steps: 29
+3 2 5 
+4 1 8 
+6 0 7 
+
+Steps: 30
+3 2 5 
+4 1 8 
+6 7 0 
+
+Steps: 31
+3 2 5 
+4 1 0 
+6 7 8 
+
+Steps: 32
+3 2 0 
+4 1 5 
+6 7 8 
+
+Steps: 33
+3 0 2 
+4 1 5 
+6 7 8 
+
+Steps: 34
+3 1 2 
+4 0 5 
+6 7 8 
+
+Steps: 35
+3 1 2 
+0 4 5 
+6 7 8 
+
+Steps: 36
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 6165
+H2 Search Cost (nodes generated): 63
+H1 Time: 56.65 ms
+H2 Time: 1.05 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+1 2 8 
+3 0 7 
+6 4 5 
+
+Steps: 2
+1 2 8 
+3 4 7 
+6 0 5 
+
+Steps: 3
+1 2 8 
+3 7 0 
+6 4 5 
+
+Steps: 4
+1 2 0 
+3 7 8 
+6 4 5 
+
+Steps: 5
+1 0 2 
+3 7 8 
+6 4 5 
+
+Steps: 6
+0 1 2 
+3 7 8 
+6 4 5 
+
+Steps: 7
+1 2 8 
+3 7 5 
+6 4 0 
+
+Steps: 8
+3 1 2 
+0 7 8 
+6 4 5 
+
+Steps: 9
+1 7 2 
+3 0 8 
+6 4 5 
+
+Steps: 10
+1 7 2 
+3 4 8 
+6 0 5 
+
+Steps: 11
+1 2 8 
+3 7 5 
+6 0 4 
+
+Steps: 12
+1 2 8 
+3 0 5 
+6 7 4 
+
+Steps: 13
+1 2 8 
+3 4 7 
+0 6 5 
+
+Steps: 14
+1 2 8 
+3 4 7 
+6 5 0 
+
+Steps: 15
+1 2 8 
+3 4 0 
+6 5 7 
+
+Steps: 16
+1 2 0 
+3 4 8 
+6 5 7 
+
+Steps: 17
+1 0 2 
+3 4 8 
+6 5 7 
+
+Steps: 18
+0 1 2 
+3 4 8 
+6 5 7 
+
+Steps: 19
+1 2 8 
+0 3 7 
+6 4 5 
+
+Steps: 20
+1 0 8 
+3 2 7 
+6 4 5 
+
+Steps: 21
+0 1 8 
+3 2 7 
+6 4 5 
+
+Steps: 22
+3 1 2 
+0 4 8 
+6 5 7 
+
+Steps: 23
+3 1 2 
+6 7 8 
+0 4 5 
+
+Steps: 24
+1 4 2 
+3 0 8 
+6 5 7 
+
+Steps: 25
+1 4 2 
+3 5 8 
+6 0 7 
+
+Steps: 26
+1 4 2 
+3 5 8 
+6 7 0 
+
+Steps: 27
+1 4 2 
+3 5 0 
+6 7 8 
+
+Steps: 28
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 29
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 30
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 6919
+H2 Search Cost (nodes generated): 54
+H1 Time: 64.01 ms
+H2 Time: 0.87 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+0 2 5 
+1 6 8 
+4 3 7 
+
+Steps: 2
+1 2 5 
+0 6 8 
+4 3 7 
+
+Steps: 3
+1 2 5 
+4 6 8 
+0 3 7 
+
+Steps: 4
+1 2 5 
+4 6 8 
+3 0 7 
+
+Steps: 5
+1 2 5 
+4 0 8 
+3 6 7 
+
+Steps: 6
+1 2 5 
+0 4 8 
+3 6 7 
+
+Steps: 7
+1 2 5 
+3 4 8 
+0 6 7 
+
+Steps: 8
+1 2 5 
+3 4 8 
+6 0 7 
+
+Steps: 9
+1 2 5 
+3 4 8 
+6 7 0 
+
+Steps: 10
+1 2 5 
+3 4 0 
+6 7 8 
+
+Steps: 11
+1 2 0 
+3 4 5 
+6 7 8 
+
+Steps: 12
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 13
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 4635
+H2 Search Cost (nodes generated): 21
+H1 Time: 41.81 ms
+H2 Time: 0.36 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+1 7 4 
+6 0 2 
+8 3 5 
+
+Steps: 2
+1 0 4 
+6 7 2 
+8 3 5 
+
+Steps: 3
+1 4 0 
+6 7 2 
+8 3 5 
+
+Steps: 4
+1 4 2 
+6 7 0 
+8 3 5 
+
+Steps: 5
+1 4 2 
+6 7 5 
+8 3 0 
+
+Steps: 6
+0 1 4 
+6 7 2 
+8 3 5 
+
+Steps: 7
+1 7 4 
+6 3 2 
+8 0 5 
+
+Steps: 8
+1 7 4 
+6 3 2 
+0 8 5 
+
+Steps: 9
+1 7 4 
+0 3 2 
+6 8 5 
+
+Steps: 10
+1 7 4 
+3 0 2 
+6 8 5 
+
+Steps: 11
+1 0 4 
+3 7 2 
+6 8 5 
+
+Steps: 12
+1 4 0 
+3 7 2 
+6 8 5 
+
+Steps: 13
+1 4 2 
+3 7 0 
+6 8 5 
+
+Steps: 14
+1 4 2 
+3 7 5 
+6 8 0 
+
+Steps: 15
+1 4 2 
+3 7 5 
+6 0 8 
+
+Steps: 16
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 17
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 18
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 5839
+H2 Search Cost (nodes generated): 32
+H1 Time: 53.53 ms
+H2 Time: 0.57 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+4 2 0 
+1 6 3 
+7 8 5 
+
+Steps: 2
+4 0 2 
+1 6 3 
+7 8 5 
+
+Steps: 3
+0 4 2 
+1 6 3 
+7 8 5 
+
+Steps: 4
+1 4 2 
+0 6 3 
+7 8 5 
+
+Steps: 5
+1 4 2 
+6 0 3 
+7 8 5 
+
+Steps: 6
+1 0 2 
+6 4 3 
+7 8 5 
+
+Steps: 7
+0 1 2 
+6 4 3 
+7 8 5 
+
+Steps: 8
+1 4 2 
+6 3 0 
+7 8 5 
+
+Steps: 9
+1 4 2 
+6 3 5 
+7 8 0 
+
+Steps: 10
+1 4 2 
+6 3 5 
+7 0 8 
+
+Steps: 11
+1 4 2 
+6 3 5 
+0 7 8 
+
+Steps: 12
+1 4 2 
+0 3 5 
+6 7 8 
+
+Steps: 13
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 14
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 15
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 4077
+H2 Search Cost (nodes generated): 26
+H1 Time: 38.55 ms
+H2 Time: 0.44 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+5 4 1 
+6 3 2 
+0 7 8 
+
+Steps: 2
+5 4 1 
+0 3 2 
+6 7 8 
+
+Steps: 3
+0 4 1 
+5 3 2 
+6 7 8 
+
+Steps: 4
+5 4 1 
+3 0 2 
+6 7 8 
+
+Steps: 5
+5 0 1 
+3 4 2 
+6 7 8 
+
+Steps: 6
+5 1 0 
+3 4 2 
+6 7 8 
+
+Steps: 7
+5 1 2 
+3 4 0 
+6 7 8 
+
+Steps: 8
+0 5 1 
+3 4 2 
+6 7 8 
+
+Steps: 9
+5 1 2 
+3 4 8 
+6 7 0 
+
+Steps: 10
+5 1 2 
+3 0 4 
+6 7 8 
+
+Steps: 11
+3 5 1 
+0 4 2 
+6 7 8 
+
+Steps: 12
+5 4 1 
+3 2 0 
+6 7 8 
+
+Steps: 13
+4 0 1 
+5 3 2 
+6 7 8 
+
+Steps: 14
+4 1 0 
+5 3 2 
+6 7 8 
+
+Steps: 15
+4 1 2 
+5 3 0 
+6 7 8 
+
+Steps: 16
+5 4 1 
+3 7 2 
+6 0 8 
+
+Steps: 17
+5 4 1 
+6 3 2 
+7 0 8 
+
+Steps: 18
+5 1 2 
+3 4 8 
+6 0 7 
+
+Steps: 19
+5 0 2 
+3 1 4 
+6 7 8 
+
+Steps: 20
+0 5 2 
+3 1 4 
+6 7 8 
+
+Steps: 21
+5 1 2 
+0 3 4 
+6 7 8 
+
+Steps: 22
+0 1 2 
+5 3 4 
+6 7 8 
+
+Steps: 23
+5 1 2 
+3 7 4 
+6 0 8 
+
+Steps: 24
+4 1 2 
+5 3 8 
+6 7 0 
+
+Steps: 25
+3 5 1 
+4 0 2 
+6 7 8 
+
+Steps: 26
+3 0 1 
+4 5 2 
+6 7 8 
+
+Steps: 27
+3 1 0 
+4 5 2 
+6 7 8 
+
+Steps: 28
+3 1 2 
+4 5 0 
+6 7 8 
+
+Steps: 29
+3 1 2 
+4 0 5 
+6 7 8 
+
+Steps: 30
+3 1 2 
+0 4 5 
+6 7 8 
+
+Steps: 31
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 4884
+H2 Search Cost (nodes generated): 55
+H1 Time: 59.69 ms
+H2 Time: 2.04 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+
+Checking the solvability of the puzzle: 
+Puzzle is solvable.
+
+-----------------------------------------------
+SOLVING... 
+Steps: 1
+1 5 4 
+6 0 3 
+7 8 2 
+
+Steps: 2
+1 0 4 
+6 5 3 
+7 8 2 
+
+Steps: 3
+1 4 0 
+6 5 3 
+7 8 2 
+
+Steps: 4
+0 1 4 
+6 5 3 
+7 8 2 
+
+Steps: 5
+1 5 4 
+6 3 0 
+7 8 2 
+
+Steps: 6
+1 5 0 
+6 3 4 
+7 8 2 
+
+Steps: 7
+1 0 5 
+6 3 4 
+7 8 2 
+
+Steps: 8
+0 1 5 
+6 3 4 
+7 8 2 
+
+Steps: 9
+1 5 4 
+6 3 2 
+7 8 0 
+
+Steps: 10
+1 5 4 
+6 3 2 
+7 0 8 
+
+Steps: 11
+1 5 4 
+6 3 2 
+0 7 8 
+
+Steps: 12
+1 5 4 
+0 3 2 
+6 7 8 
+
+Steps: 13
+1 5 4 
+3 0 2 
+6 7 8 
+
+Steps: 14
+1 0 4 
+3 5 2 
+6 7 8 
+
+Steps: 15
+1 4 0 
+3 5 2 
+6 7 8 
+
+Steps: 16
+1 4 2 
+3 5 0 
+6 7 8 
+
+Steps: 17
+1 4 2 
+3 0 5 
+6 7 8 
+
+Steps: 18
+1 0 2 
+3 4 5 
+6 7 8 
+
+Steps: 19
+0 1 2 
+3 4 5 
+6 7 8 
+
+H1 Search Cost (nodes generated): 5579
+H2 Search Cost (nodes generated): 33
+H1 Time: 54.30 ms
+H2 Time: 0.61 ms
+H1 Search Depth: 12
+H2 Search Depth: 12
+-----------------------------------------------
+
+carlos@C-MacBook-Pro astar-heuristics-comparison % 

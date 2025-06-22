@@ -119,7 +119,6 @@ class Node:
 
 
 
-
 def solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve):
     h1AveCost = 0
     h2AveCost = 0
@@ -127,12 +126,12 @@ def solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve):
     h2AveTime = 0
     h1AveDepth = 0
     h2AveDepth = 0
-    puzzleNum = 0
+    puzzleNum = 1
     while len(initialPuzzleNodes) > 0:
         # --- Check for solvability and adding to final starting list
         newInitialNode = heapq.heappop(initialPuzzleNodes)
         if not puzzleIsSolvable(newInitialNode):
-            print("▊ Removing from list." if VOLUME not in ["silent", "quite"] else "")
+            print("▊ Removing from list.")
         else: 
             # --- Printing 
             if VOLUME not in ["silent", "quite"] :
@@ -142,12 +141,12 @@ def solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve):
             h2Cost, h2Time, h2Depth = AStar8PuzzleAlgorithm(newInitialNode, "h2")
 
             if VOLUME not in ["silent", "quite"] :
-                print("H1 Search Cost:", h1Cost)
-                print("H2 Search Cost:", h2Cost)
+                print("H1 Search Cost (nodes generated):", h1Cost)
+                print("H2 Search Cost (nodes generated):", h2Cost)
                 print(f"H1 Time: {1000 * h1Time:.2f} ms")
                 print(f"H2 Time: {1000 * h2Time:.2f} ms")
-                print("H1 Average Search Depth:", h1Depth)
-                print("H2 Average Search Depth:", h2Depth)
+                print("H1 Search Depth:", h1Depth)
+                print("H2 Search Depth:", h2Depth)
                 print("-----------------------------------------------\n")
 
             h1AveCost += h1Cost
@@ -163,12 +162,12 @@ def solveAndPrintAllPuzzles(initialPuzzleNodes, numPuzzlesToSolve):
     try: 
         if VOLUME == "quite": 
             print("-----------------------------------------------\n")
-            print("H1 Average Search Cost:", h1Cost/numPuzzlesToSolve)
-            print("H2 Average Search Cost:", h2Cost/numPuzzlesToSolve)
-            print(f"H1 Average Time: {1000 * h1Time:.2f} ms"/numPuzzlesToSolve)
-            print(f"H2 Average Time: {1000 * h2Time:.2f} ms"/numPuzzlesToSolve)
-            print("H1 Average Search Depth:", h1Depth/numPuzzlesToSolve)
-            print("H2 Average Search Depth:", h2Depth/numPuzzlesToSolve)
+            print("H1 Average Search Cost:", h1AveCost/numPuzzlesToSolve)
+            print("H2 Average Search Cost:", h2AveCost/numPuzzlesToSolve)
+            print(f"H1 Average Time: {1000 * h1AveTime / numPuzzlesToSolve:.2f} ms")
+            print(f"H2 Average Time: {1000 * h2AveTime / numPuzzlesToSolve:.2f} ms")
+            print("H1 Average Search Depth:", h1AveDepth/numPuzzlesToSolve)
+            print("H2 Average Search Depth:", h2AveDepth/numPuzzlesToSolve)
             print("-----------------------------------------------\n")
     except:
         print("\n▊ ERROR")
@@ -210,7 +209,7 @@ def AStar8PuzzleAlgorithm(initialNode, heuristicPref):
             print("...")
         # if heuristicPref == "h2" and VOLUME not in ["silent", "quite"] : 
         #     print("Steps:", steps)
-        # print("▊ Current Depth:", currentNode.g if VOLUME not in ["silent", "quite"] else "" )
+        #     printBoard(currentNode.state)
         
         # --- Checking against the solution
         if currentNode.stateHash == goalState:
