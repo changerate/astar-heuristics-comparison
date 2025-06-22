@@ -11,11 +11,18 @@ import heapq
 import random 
 import os # For clearing the terminal
 
-boardHeight = 3
-boardLength = 3
-GOAL_POSITIONS = {i: (i//boardHeight, i%boardLength) for i in range(boardHeight*boardLength)}
+BOARD_HEIGHT = 3
+BOARD_LENGTH = 3
+
+GOAL_POSITIONS = {i: (i // BOARD_HEIGHT, i % BOARD_LENGTH) for i in range(BOARD_HEIGHT*BOARD_LENGTH)}
     # This calculates the "goal" positions for any tile given 
     # -- used in the manhattan distance function
+    
+# -- collect allowable numbers for this sized board
+ALLOWED_NUMBERS = set()
+for x in range(BOARD_HEIGHT * BOARD_LENGTH):
+    ALLOWED_NUMBERS.add(str(x))
+    # for example, a 3x3 board has numbers [0,1,2,3,4,5,6,7,8]
 
 
 
@@ -71,7 +78,7 @@ class Node:
 
 
 
-def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
+def AStar8PuzzleAlgorithm(initialNode, BOARD_HEIGHT, BOARD_LENGTH):
     goalState = tuple(tuple(row) for row in [[0,1,2],[3,4,5],[6,7,8]])
     exploredNodes = set()
 
@@ -93,7 +100,7 @@ def AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength):
             return currentNode.g 
         
         exploredNodes.add(currentNode.stateHash)
-        successorNodes = findSuccessorNodes(currentNode, boardLength, boardHeight)
+        successorNodes = findSuccessorNodes(currentNode, BOARD_LENGTH, BOARD_HEIGHT)
 
         # Exploring each successor node
         for successorNode in successorNodes:
@@ -136,11 +143,11 @@ def summedManhattanDistance(state):
 
 
 '''
-@Input: currentNode = [boardLength X boardHeight]
-@Input: boardLength
-@Input: boardHeight
+@Input: currentNode = [BOARD_LENGTH X BOARD_HEIGHT]
+@Input: BOARD_LENGTH
+@Input: BOARD_HEIGHT
 '''
-def findSuccessorNodes(currentNode, boardLength, boardHeight):
+def findSuccessorNodes(currentNode, BOARD_LENGTH, BOARD_HEIGHT):
     successors = []
     state = currentNode.state
     # Find empty position
@@ -153,7 +160,7 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
     for directionalOffsetRow, directionalOffsetCol in moves:
         newRow, newCol = row + directionalOffsetRow, col + directionalOffsetCol
         
-        if 0 <= newRow < boardHeight and 0 <= newCol < boardLength: # Check bounds
+        if 0 <= newRow < BOARD_HEIGHT and 0 <= newCol < BOARD_LENGTH: # Check bounds
             # Create new state by swapping
             newState = [list(row) for row in state]  # Deep copy
             newState[row][col], newState[newRow][newCol] = newState[newRow][newCol], newState[row][col]
@@ -166,7 +173,7 @@ def findSuccessorNodes(currentNode, boardLength, boardHeight):
 
 
 
-def AStarHeuristicComparisonWithFile(boardHeight, boardLength):
+def AStarHeuristicComparisonWithFile(BOARD_HEIGHT, BOARD_LENGTH):
     listOfCosts = set()
 
     filename = input("\nEnter the destination of the file containing ALL the puzzles to be solved: ")
@@ -180,13 +187,15 @@ def AStarHeuristicComparisonWithFile(boardHeight, boardLength):
     # While there is still a puzzle to be worked on: 
     puzzleFileIndex = 0
     while puzzleFileIndex < len(puzzleDatabaseFile):
-        indexAndPuzzleTuple = getNextPuzzleFromFileString(0, puzzleDatabaseFile, boardHeight, boardLength, puzzleFileIndex)
+        indexAndPuzzleTuple = getNextPuzzleFromFileString(0, puzzleDatabaseFile, BOARD_HEIGHT, BOARD_LENGTH, puzzleFileIndex)
         puzzleFileIndex = indexAndPuzzleTuple[1]
 
         initialNode = Node(state = indexAndPuzzleTuple[0])
-        listOfCosts.add(AStar8PuzzleAlgorithm(initialNode, boardHeight, boardLength))
+        listOfCosts.add(AStar8PuzzleAlgorithm(initialNode, BOARD_HEIGHT, BOARD_LENGTH))
 
     return listOfCosts
+
+
 
 
 
@@ -196,6 +205,8 @@ def AStarHeuristicComparisonWithFile(boardHeight, boardLength):
 # ---------------------------------------------------------------------
 #                              user inputs 
 # ---------------------------------------------------------------------
+
+
 
 
 
@@ -278,24 +289,24 @@ def gracefullyGetUserPreferences():
 
 
 """
-Generate a random puzzle with integers between 0 and boardLength * boardHeight inclusive 
+Generate a random puzzle with integers between 0 and BOARD_LENGTH * BOARD_HEIGHT inclusive 
 """
 def getRandomPuzzle():
-    puzzle = [[0 for _ in range(boardLength)] for _ in range(boardHeight)]
+    puzzle = [[0 for _ in range(BOARD_LENGTH)] for _ in range(BOARD_HEIGHT)]
         
     listOfNums = []
-    for i in range(boardHeight*boardLength):
+    for i in range(BOARD_HEIGHT*BOARD_LENGTH):
         listOfNums.append(i)
     random.shuffle(listOfNums)
     
-    for row in range(boardHeight):
-        for col in range(boardLength):
+    for row in range(BOARD_HEIGHT):
+        for col in range(BOARD_LENGTH):
             puzzle[row][col] = listOfNums[0]
             listOfNums.remove(listOfNums[0])
     
     # --- print puzzle for testing
-    # for row in range(boardHeight):
-    #     for col in range(boardLength):
+    # for row in range(BOARD_HEIGHT):
+    #     for col in range(BOARD_LENGTH):
     #         print(puzzle[row][col], end=' ')
     #     print("\n")
     
@@ -305,7 +316,7 @@ def getRandomPuzzle():
    
     
 def getInitialPuzzlesFromFiles():
-    endOfFileNode = Node(state = [[0 for _ in range(boardLength)] for _ in range(boardHeight)])
+    endOfFileNode = Node(state = [[0 for _ in range(BOARD_LENGTH)] for _ in range(BOARD_HEIGHT)])
         # this means the end of the file wsa reached and this initial node is all zeros
     filename = input("\nEnter the destination of the file containing ALL the puzzles to be solved: ")
     initialPuzzleNodes = []
@@ -322,7 +333,7 @@ def getInitialPuzzlesFromFiles():
     # While there is still a puzzle to be read from the file
     fileIndex = 0
     while fileIndex < len(puzzleFileAsString):
-        initialNode, fileIndex = getNextPuzzleFromFileString(puzzleFileAsString, boardHeight, boardLength, fileIndex)
+        initialNode, fileIndex = getNextPuzzleFromFileString(puzzleFileAsString, BOARD_HEIGHT, BOARD_LENGTH, fileIndex)
         if initialNode == endOfFileNode:
             continue
         initialPuzzleNodes.append(initialNode)
@@ -332,21 +343,18 @@ def getInitialPuzzlesFromFiles():
     
 
 
-def getNextPuzzleFromFileString(puzzleFileAsString, boardHeight, boardLength, fileIndex):
-    initialState = [[0 for _ in range(boardLength)] for _ in range(boardHeight)]
+def getNextPuzzleFromFileString(puzzleFileAsString, BOARD_HEIGHT, BOARD_LENGTH, fileIndex):
+    initialState = [[0 for _ in range(BOARD_LENGTH)] for _ in range(BOARD_HEIGHT)]
     puzzleIndex = 0
-    includedNums = set()
-    for x in range(boardHeight * boardLength):
-        includedNums.add(str(x))
     
     # Fill out the initialState with the given numbers from next puzzle
-    while puzzleIndex < boardHeight * boardLength and fileIndex < len(puzzleFileAsString):
+    while puzzleIndex < BOARD_HEIGHT * BOARD_LENGTH and fileIndex < len(puzzleFileAsString):
         char = puzzleFileAsString[fileIndex]
         fileIndex += 1
 
         # If the current character is a number, add it to the initialState
-        if char in includedNums and puzzleIndex < boardHeight * boardLength:
-            initialState[puzzleIndex // boardHeight][puzzleIndex % boardLength] = int(char)
+        if char in ALLOWED_NUMBERS and puzzleIndex < BOARD_HEIGHT * BOARD_LENGTH:
+            initialState[puzzleIndex // BOARD_HEIGHT][puzzleIndex % BOARD_LENGTH] = int(char)
             puzzleIndex += 1
 
     return (Node(state = initialState), fileIndex)
@@ -354,31 +362,26 @@ def getNextPuzzleFromFileString(puzzleFileAsString, boardHeight, boardLength, fi
 
 
 
-def getInitialNodesFromUserInput():
-    initialState = [[0 for _ in range(boardLength)] for _ in range(boardHeight)]
+def getInitialPuzzleFromUserInput():
+    initialState = [[0 for _ in range(BOARD_LENGTH)] for _ in range(BOARD_HEIGHT)]
 
     # --- input 
-    print(f"\nInput a puzzle with {boardHeight} rows and {boardLength} columns.")
-    print(f"For example, a puzzle with {boardHeight} rows and {boardLength} columns would be inputted like: 0 1 2 3 4 5 6 7 8")
+    print(f"\nInput a puzzle with {BOARD_HEIGHT} rows and {BOARD_LENGTH} columns.")
+    print(f"For example, a puzzle with 3 rows and 3 columns would be inputted like: 0 1 2 3 4 5 6 7 8")
     initialStateString = input("\nInput, then hit enter: ")
     
-    # --- collect appropriate numbers for this sized board
-    includedNums = set()
-    for x in range(boardHeight * boardLength):
-        includedNums.add(str(x))
-
     # --- convert to initial state format 
     index = 0
     for i in range(len(initialStateString)):
         char = initialStateString[i]
-        if char in includedNums and index < boardHeight * boardLength:
-            initialState[index // boardHeight][index % boardLength] = int(char)
+        if char in ALLOWED_NUMBERS and index < BOARD_HEIGHT * BOARD_LENGTH:
+            initialState[index // BOARD_HEIGHT][index % BOARD_LENGTH] = int(char)
             index += 1
         
     # --- print puzzle for user 
     # print("\nYou inputted:")
-    # for row in range(boardHeight):
-    #     for col in range(boardLength):
+    # for row in range(BOARD_HEIGHT):
+    #     for col in range(BOARD_LENGTH):
     #         print(initialState[row][col], end=' ')
     #     print("\n")
     
@@ -390,8 +393,8 @@ def getInitialNodesFromUserInput():
     
 def puzzleIsSolvable(puzzle):
     print("\nChecking the solvability of the puzzle: ")
-    for row in range(boardHeight):
-        for col in range(boardLength):
+    for row in range(BOARD_HEIGHT):
+        for col in range(BOARD_LENGTH):
             print(puzzle.state[row][col], end=' ')
         print("")
 
@@ -420,7 +423,7 @@ def getPuzzles(puzzleAmntPref, inputPreference):
     # --- select from random gen, file, or manual input 
     i = 0 
     
-    while i < numPuzzlesToSolve:
+    while i < numPuzzlesToSolve:  # repeat for multiple puzzles 
         match inputPreference:
             case 1:
                 initialPuzzleNodes.append(getRandomPuzzle())
@@ -436,7 +439,7 @@ def getPuzzles(puzzleAmntPref, inputPreference):
                         print("▊ Puzzle is not solvable. Exiting.")
                         exit(1) 
             case 3: 
-                initialPuzzleNodes.append(getInitialNodesFromUserInput())
+                initialPuzzleNodes.append(getInitialPuzzleFromUserInput())
                 # Check for solvability 
                 for puzzle in initialPuzzleNodes:
                     if puzzleIsSolvable(puzzle):
@@ -462,20 +465,21 @@ def getPuzzles(puzzleAmntPref, inputPreference):
 # =====================================================================
 if __name__ == "__main__":
 
-    # --- clear the terminal
+    # --------- clear the terminal
     def clear_terminal():
         os.system('cls' if os.name == 'nt' else 'clear')
     clear_terminal()
 
-    # --- Get user preferences
+    # --------- Get user preferences
     print("\nHello, welcome to the 8-puzzle problem solver using the A* algorithm.\n")
     puzzleAmntPref, inputPreference, heuristicPreference = gracefullyGetUserPreferences()    
-    if puzzleAmntPref == None:
-        exit()
+    if puzzleAmntPref == None: 
+        # the user chose to exit
+        exit(0)
         
     #### REMOVE SOLUTION DEPTH 
     
-    # --- Get puzzles through different means
+    # --------- Get puzzles through different means
     initialPuzzleNodes = getPuzzles(puzzleAmntPref, inputPreference)
     
     for puzzle in initialPuzzleNodes:
@@ -487,6 +491,6 @@ if __name__ == "__main__":
 
         
     # print("------------------------------------------------")
-    # print("Cost of algorithm:", AStarHeuristicComparisonWithFile(boardHeight, boardLength))
+    # print("Cost of algorithm:", AStarHeuristicComparisonWithFile(BOARD_HEIGHT, BOARD_LENGTH))
     # print("------------------------------------------------")
     # # AStarIDSComparisonWithInput()
